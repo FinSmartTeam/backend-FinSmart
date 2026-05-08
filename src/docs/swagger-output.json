@@ -1,0 +1,192 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "version": "0.0.1",
+    "title": "Documentation API for My Application",
+    "description": "This is the API documentation for my application."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000/api",
+      "description": "Local development server"
+    },
+    {
+      "url": "https://backend-fin-smart.vercel.app/api",
+      "description": "Deployed server on Vercel"
+    }
+  ],
+  "paths": {
+    "/register": {
+      "post": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/login": {
+      "post": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/me": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/activation": {
+      "post": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    },
+    "schemas": {
+      "LoginRequest": {
+        "type": "object",
+        "properties": {
+          "identifier": {
+            "type": "string",
+            "example": "user@example.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "Password123"
+          }
+        }
+      },
+      "ActivationRequest": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "example": "abc12345"
+          }
+        }
+      },
+      "CreateCategoryRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "New Category"
+          },
+          "description": {
+            "type": "string",
+            "example": "Description of the new category"
+          },
+          "icon": {
+            "type": "string",
+            "example": "https://example.com/icon.png"
+          }
+        }
+      },
+      "CreateCategoryUpdate": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Updated Category Name"
+          }
+        }
+      },
+      "CreateEventRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Title of the Event"
+          },
+          "startDate": {
+            "type": "string",
+            "example": "yyyy-mm-dd hh:mm:ss"
+          },
+          "endDate": {
+            "type": "string",
+            "example": "yyyy-mm-dd hh:mm:ss"
+          },
+          "description": {
+            "type": "string",
+            "example": "description"
+          },
+          "banner": {
+            "type": "string",
+            "example": "fileURL"
+          },
+          "isFeatured": {
+            "type": "boolean",
+            "example": true
+          },
+          "isOnline": {
+            "type": "boolean",
+            "example": false
+          },
+          "category": {
+            "type": "string",
+            "example": "Category ID here"
+          },
+          "location": {
+            "type": "object",
+            "properties": {
+              "region": {
+                "type": "string",
+                "example": "region ID here"
+              },
+              "coordinates": {
+                "type": "array",
+                "example": [
+                  0,
+                  0
+                ],
+                "items": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        }
+      },
+      "UpdateEventRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Updated Title of the Event"
+          }
+        }
+      },
+      "RemoveMediaRequest": {
+        "type": "object",
+        "properties": {
+          "mediaUrl": {
+            "type": "string",
+            "example": "fileURL"
+          }
+        }
+      }
+    }
+  }
+}

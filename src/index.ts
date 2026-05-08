@@ -1,12 +1,35 @@
+import bodyParser from "body-parser";
 import express from "express";
-import router from "./routes/api"
+import cors from "cors";
 
-const app = express();
+import router from "./routes/api";
+import docs from "./docs/route";
 
-const PORT = 3000;
+async function init(){
+  try {
+    const app = express();
+    const PORT = 3000;
 
-app.use("/api",router)
+    app.get("/",(req,res)=>{
+      return res.status(200).json({
+        message:"FinSmart API is running",
+        data: null
+      })
+    })
+
+    app.use(cors());
+    app.use(bodyParser.json());
+
+    app.use("/api", router);
+    docs(app);
 
 app.listen(PORT, () => {
-  console.log(`server run at port ${PORT}`);
+  console.log(`Server run at port ${PORT}`);
 });
+ 
+  } catch (error) {
+    console.log("Error : ",error);
+  }
+}
+
+init();
