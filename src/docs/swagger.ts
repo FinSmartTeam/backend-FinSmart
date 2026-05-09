@@ -25,11 +25,19 @@ const doc = {
     },
     schemas: {
       LoginRequest: {
-        identifier: "user@example.com",
+        email: "user@example.com",
         password: "Password123",
       },
+      RegisterRequest: {
+        fullName: "John Doe",
+        username: "johndoe",
+        email: "user@example.com",
+        password: "Password123",
+        confirmPassword: "Password123"
+      },
       ActivationRequest: {
-        code: "abc12345",
+        email: "user@example.com",
+        code: "123456",
       },
       CreateCategoryRequest: {
         name: "New Category",

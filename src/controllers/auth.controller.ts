@@ -52,6 +52,12 @@ export default {
   async register(req: Request, res: Response) {
     /**
       #swagger.tags = ["Auth"]
+      #swagger.summary = "Register a new user"
+      #swagger.description = "Endpoint to register a new user. It will send a 6-digit OTP to the user's email for activation."
+      #swagger.requestBody = {
+        required: true,
+        schema: { $ref: "#/components/schemas/RegisterRequest" }
+      }
      */
     const { fullName, username, email, password, confirmPassword } =
       req.body as unknown as TRegister;
@@ -101,11 +107,13 @@ export default {
 
   async login(req: Request, res: Response) {
     /**
-     #swagger.tags = ["Auth"]
-     #swagger.requestBody = {
-      required:true,
-      schema: {$ref: "#/components/schemas/LoginRequest"}
-     }
+      #swagger.tags = ["Auth"]
+      #swagger.summary = "Login a user"
+      #swagger.description = "Login to the application using email and password. Requires the account to be activated via OTP first."
+      #swagger.requestBody = {
+       required:true,
+       schema: {$ref: "#/components/schemas/LoginRequest"}
+      }
      */
     const { email, password } = req.body as unknown as TLogin;
 
@@ -167,6 +175,8 @@ export default {
   async me(req: IReqUser, res: Response) {
     /**
       #swagger.tags = ["Auth"]
+      #swagger.summary = "Get current user profile"
+      #swagger.description = "Fetch the profile data of the currently authenticated user using JWT Bearer token."
       #swagger.security = [{
         "bearerAuth": []
       }]
@@ -206,6 +216,8 @@ export default {
   async activation(req: Request, res: Response) {
     /**
       #swagger.tags = ["Auth"]
+      #swagger.summary = "Activate user account via OTP"
+      #swagger.description = "Activate a newly registered account by verifying the 6-digit OTP sent to their email."
       #swagger.requestBody = {
         required: true,
         schema: {

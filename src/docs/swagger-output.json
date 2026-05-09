@@ -21,34 +21,24 @@
         "tags": [
           "Auth"
         ],
-        "description": "",
+        "summary": "Register a new user",
+        "description": "Endpoint to register a new user. It will send a 6-digit OTP to the user's email for activation.",
         "responses": {
           "409": {
             "description": "Conflict"
           }
         },
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "fullName": {
-                    "example": "any"
-                  },
-                  "username": {
-                    "example": "any"
-                  },
-                  "email": {
-                    "example": "any"
-                  },
-                  "password": {
-                    "example": "any"
-                  },
-                  "confirmPassword": {
-                    "example": "any"
-                  }
-                }
+                "$ref": "#/components/schemas/RegisterRequest"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
               }
             }
           }
@@ -60,7 +50,8 @@
         "tags": [
           "Auth"
         ],
-        "description": "",
+        "summary": "Login a user",
+        "description": "Login to the application using email and password. Requires the account to be activated via OTP first.",
         "responses": {
           "default": {
             "description": ""
@@ -88,7 +79,8 @@
         "tags": [
           "Auth"
         ],
-        "description": "",
+        "summary": "Get current user profile",
+        "description": "Fetch the profile data of the currently authenticated user using JWT Bearer token.",
         "parameters": [
           {
             "name": "authorization",
@@ -115,7 +107,8 @@
         "tags": [
           "Auth"
         ],
-        "description": "",
+        "summary": "Activate user account via OTP",
+        "description": "Activate a newly registered account by verifying the 6-digit OTP sent to their email.",
         "responses": {
           "400": {
             "description": "Bad Request"
@@ -153,7 +146,7 @@
       "LoginRequest": {
         "type": "object",
         "properties": {
-          "identifier": {
+          "email": {
             "type": "string",
             "example": "user@example.com"
           },
@@ -166,12 +159,44 @@
           "name": "LoginRequest"
         }
       },
+      "RegisterRequest": {
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "type": "string",
+            "example": "John Doe"
+          },
+          "username": {
+            "type": "string",
+            "example": "johndoe"
+          },
+          "email": {
+            "type": "string",
+            "example": "user@example.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "Password123"
+          },
+          "confirmPassword": {
+            "type": "string",
+            "example": "Password123"
+          }
+        },
+        "xml": {
+          "name": "RegisterRequest"
+        }
+      },
       "ActivationRequest": {
         "type": "object",
         "properties": {
+          "email": {
+            "type": "string",
+            "example": "user@example.com"
+          },
           "code": {
             "type": "string",
-            "example": "abc12345"
+            "example": "123456"
           }
         },
         "xml": {
