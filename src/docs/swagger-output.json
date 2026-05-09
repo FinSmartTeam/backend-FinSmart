@@ -18,40 +18,125 @@
   "paths": {
     "/register": {
       "post": {
+        "tags": [
+          "Auth"
+        ],
         "description": "",
         "responses": {
-          "default": {
-            "description": ""
+          "409": {
+            "description": "Conflict"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "fullName": {
+                    "example": "any"
+                  },
+                  "username": {
+                    "example": "any"
+                  },
+                  "email": {
+                    "example": "any"
+                  },
+                  "password": {
+                    "example": "any"
+                  },
+                  "confirmPassword": {
+                    "example": "any"
+                  }
+                }
+              }
+            }
           }
         }
       }
     },
     "/login": {
       "post": {
+        "tags": [
+          "Auth"
+        ],
         "description": "",
         "responses": {
           "default": {
             "description": ""
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
           }
         }
       }
     },
     "/me": {
       "get": {
+        "tags": [
+          "Auth"
+        ],
         "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "default": {
             "description": ""
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       }
     },
     "/activation": {
       "post": {
+        "tags": [
+          "Auth"
+        ],
         "description": "",
         "responses": {
-          "default": {
-            "description": ""
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActivationRequest"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "#/components/schemas/ActivationRequest"
+              }
+            }
           }
         }
       }
@@ -76,6 +161,9 @@
             "type": "string",
             "example": "Password123"
           }
+        },
+        "xml": {
+          "name": "LoginRequest"
         }
       },
       "ActivationRequest": {
@@ -85,6 +173,9 @@
             "type": "string",
             "example": "abc12345"
           }
+        },
+        "xml": {
+          "name": "ActivationRequest"
         }
       },
       "CreateCategoryRequest": {
@@ -102,6 +193,9 @@
             "type": "string",
             "example": "https://example.com/icon.png"
           }
+        },
+        "xml": {
+          "name": "CreateCategoryRequest"
         }
       },
       "CreateCategoryUpdate": {
@@ -111,6 +205,9 @@
             "type": "string",
             "example": "Updated Category Name"
           }
+        },
+        "xml": {
+          "name": "CreateCategoryUpdate"
         }
       },
       "CreateEventRequest": {
@@ -167,6 +264,9 @@
               }
             }
           }
+        },
+        "xml": {
+          "name": "CreateEventRequest"
         }
       },
       "UpdateEventRequest": {
@@ -176,6 +276,9 @@
             "type": "string",
             "example": "Updated Title of the Event"
           }
+        },
+        "xml": {
+          "name": "UpdateEventRequest"
         }
       },
       "RemoveMediaRequest": {
@@ -185,6 +288,9 @@
             "type": "string",
             "example": "fileURL"
           }
+        },
+        "xml": {
+          "name": "RemoveMediaRequest"
         }
       }
     }
