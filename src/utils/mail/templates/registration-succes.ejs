@@ -60,7 +60,7 @@
         <h1>Selamat Datang!</h1>
       </div>
       <div class="content">
-        <p>Halo <%= username %></p>
+        <p>Halo <%= fullName %>,</p>
         <p>
           Terima kasih telah mendaftar di situs kami. Akun Anda telah berhasil
           dibuat. Berikut adalah detail akun Anda:
@@ -74,13 +74,11 @@
             <strong>Email: </strong>
             <%= email %>
           </li>
-          <li>
-            <strong>Tanggal Pendaftaran: </strong>
-            <%= createdAt %>
-          </li>
         </ul>
-        <p>Untuk memulai, silahkan klik tombol dibawah ini:</p>
-        <a href="<%= activationLink %>" class="button">Aktifkan Akun</a>
+        <p>Untuk mengaktifkan akun Anda, masukkan 6 digit kode OTP berikut di aplikasi:</p>
+        <div style="text-align: center; margin: 30px 0;">
+          <span style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #4caf50; border: 2px dashed #4caf50; padding: 15px 20px; border-radius: 8px;"><%= otp %></span>
+        </div>
         <p>
           Jika Anda memiliki pertanyaan atau membutuhkan bantuan, silakan untuk
           menghubungi kami.

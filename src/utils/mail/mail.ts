@@ -1,24 +1,18 @@
 import nodemailer from "nodemailer";
 import ejs from "ejs";
 import path from "path";
+import dotenv from "dotenv";
 
-import {
-  EMAIL_SMTP_SERVICE_NAME,
-  EMAIL_SMTP_HOST,
-  EMAIL_SMTP_PORT,
-  EMAIL_SMTP_SECURE,
-  EMAIL_SMTP_USER,
-  EMAIL_SMTP_PASS,
-} from "../../../../env";
+dotenv.config();
 
 const transporter = nodemailer.createTransport({
-  service: EMAIL_SMTP_SERVICE_NAME,
-  host: EMAIL_SMTP_HOST,
-  port: EMAIL_SMTP_PORT,
-  secure: EMAIL_SMTP_SECURE,
+  service: process.env.EMAIL_SMTP_SERVICE_NAME,
+  host: process.env.EMAIL_SMTP_HOST,
+  port: Number(process.env.EMAIL_SMTP_PORT) || 465,
+  secure: process.env.EMAIL_SMTP_SECURE === "true" || true,
   auth: {
-    user: EMAIL_SMTP_USER,
-    pass: EMAIL_SMTP_PASS,
+    user: process.env.EMAIL_SMTP_USER,
+    pass: process.env.EMAIL_SMTP_PASS,
   },
   requireTLS: true,
 });
@@ -46,4 +40,24 @@ export const renderMailHtml = async (
     data,
   );
   return content as string;
+};
+
+export const sendOtpEmail = async (email: string, fullName: string, otp: string) => {
+  try {
+    const templatePath = path.join(__dirname, "templates/registration-succes.ejs");
+    const html = await ejs.renderFile(templatePath, { fullName, email, otp });
+
+    const mailOptions = {
+      from: process.env.EMAIL_SMTP_USER,
+      to: email,
+      subject: "FinSmart Account Activation",
+      html,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    return info;
+  } catch (error) {
+    console.error("Failed to send email:", error);
+    throw new Error("Failed to send OTP email");
+  }
 };

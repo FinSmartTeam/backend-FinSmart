@@ -1,21 +1,26 @@
+import { Request, Response } from "express";
 import * as Yup from "yup";
-import {Request,Response} from "express";
-import { supabase } from "../lib/supabase";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import { eq, or } from "drizzle-orm";
+import { db } from "../lib/db";
+import { users } from "../models/user.model";
+import { sendOtpEmail } from "../utils/mail/mail";
 import response from "../utils/response";
 import { IReqUser } from "../utils/interface";
 
-type TRegister ={
-  fullName:string,
-  username:string,
-  email:string,
-  password:string,
-  confirmPassword:string
-}
+type TRegister = {
+  fullName: string;
+  username: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+};
 
-type TLogin ={
-  identifier:string,
-  password:string
-}
+type TLogin = {
+  email: string;
+  password: string;
+};
 
 const registerValidateSchema = Yup.object({
   fullName: Yup.string().required(),
@@ -41,7 +46,7 @@ const registerValidateSchema = Yup.object({
   confirmPassword: Yup.string()
     .required()
     .oneOf([Yup.ref("password")], "Passwords must match"),
-})
+});
 
 export default {
   async register(req: Request, res: Response) {
@@ -60,22 +65,35 @@ export default {
         confirmPassword,
       });
 
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            fullName,
-            username,
-          },
-        },
-      });
+      const existingUsers = await db
+        .select()
+        .from(users)
+        .where(or(eq(users.email, email), eq(users.username, username)));
 
-      if (error) {
-        return response.error(res, error.message, "Failed to register user");
+      if (existingUsers.length > 0) {
+        return res.status(409).json({
+          meta: { status: 409, message: "Email or Username already exists" },
+          data: null
+        });
       }
 
-      response.success(res, data, "User registered successfully");
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const activationCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+      const [newUser] = await db
+        .insert(users)
+        .values({
+          fullName,
+          username,
+          email,
+          password: hashedPassword,
+          activationCode,
+        })
+        .returning({ id: users.id, email: users.email, fullName: users.fullName });
+
+      await sendOtpEmail(newUser.email, newUser.fullName, activationCode);
+
+      response.success(res, newUser, "User registered successfully. Please check your email for the activation code.");
     } catch (error) {
       response.error(res, error, "Failed to register user");
     }
@@ -89,26 +107,58 @@ export default {
       schema: {$ref: "#/components/schemas/LoginRequest"}
      }
      */
-    const { identifier, password } = req.body as unknown as TLogin;
+    const { email, password } = req.body as unknown as TLogin;
 
     try {
-      if (!identifier || !password) {
+      if (!email || !password) {
         return response.unauthorized(
           res,
-          "Identifier and password are required"
+          "Email and password are required",
         );
       }
 
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: identifier,
-        password,
-      });
+      const [user] = await db.select().from(users).where(eq(users.email, email));
 
-      if (error) {
-        return response.unauthorized(res, error.message);
+      if (!user) {
+        return response.unauthorized(res, "Invalid credentials");
       }
 
-      response.success(res, data, "Login successful");
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      if (!isPasswordValid) {
+        return response.unauthorized(res, "Invalid credentials");
+      }
+
+      if (!user.isActive) {
+        return response.unauthorized(res, "Account is not activated. Please check your email for OTP.");
+      }
+
+      if (!process.env.JWT_SECRET) {
+        throw new Error("JWT_SECRET is not defined");
+      }
+
+      const token = jwt.sign(
+        {
+          id: user.id,
+          email: user.email,
+          role: user.role,
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: "1d" }
+      );
+
+      const payload = {
+        token,
+        user: {
+          id: user.id,
+          fullName: user.fullName,
+          username: user.username,
+          email: user.email,
+          role: user.role,
+          profilePicture: user.profilePicture,
+        }
+      };
+
+      response.success(res, payload, "Login successful");
     } catch (error) {
       response.error(res, error, "Failed to login");
     }
@@ -127,13 +177,27 @@ export default {
         return response.unauthorized(res, "No token provided");
       }
 
-      const { data, error } = await supabase.auth.getUser(token);
+      if (!process.env.JWT_SECRET) {
+        throw new Error("JWT_SECRET is not defined");
+      }
 
-      if (error || !data.user) {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET) as any;
+      const [user] = await db.select().from(users).where(eq(users.id, decoded.id));
+
+      if (!user) {
         return response.unauthorized(res, "Invalid token or user not found");
       }
 
-      response.success(res, data.user, "User profile fetched successfully");
+      const userProfile = {
+          id: user.id,
+          fullName: user.fullName,
+          username: user.username,
+          email: user.email,
+          role: user.role,
+          profilePicture: user.profilePicture,
+      };
+
+      response.success(res, userProfile, "User profile fetched successfully");
     } catch (error) {
       response.error(res, error, "Failed to fetch user profile");
     }
@@ -150,18 +214,50 @@ export default {
       }
     */
     try {
-      const { code } = req.body as { code: string };
+      const { code, email } = req.body as { code: string, email: string };
 
-      const { data, error } = await supabase.auth.verifyOtp({
-        email: req.body.email,
-        token: code,
-        type: 'signup'
-      });
+      if (!code || !email) {
+        return res.status(400).json({
+          meta: { status: 400, message: "Email and code are required" },
+          data: null
+        });
+      }
+
+      const [user] = await db.select().from(users).where(eq(users.email, email));
+
+      if (!user) {
+        return res.status(404).json({
+          meta: { status: 404, message: "User not found" },
+          data: null
+        });
+      }
+
+      if (user.isActive) {
+        return res.status(400).json({
+          meta: { status: 400, message: "Account is already active" },
+          data: null
+        });
+      }
+
+      if (user.activationCode !== code) {
+        return res.status(400).json({
+          meta: { status: 400, message: "Invalid activation code" },
+          data: null
+        });
+      }
+
+      await db
+        .update(users)
+        .set({
+          isActive: true,
+          activationCode: null,
+        })
+        .where(eq(users.id, user.id));
 
       response.success(
         res,
         null,
-        "Note: Supabase handles email verification automatically via secure links if enabled in dashboard."
+        "Account successfully activated. You can now login.",
       );
     } catch (error) {
       response.error(res, error, "Failed to activate user");
