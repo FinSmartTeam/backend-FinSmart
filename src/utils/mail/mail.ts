@@ -1,18 +1,23 @@
 import nodemailer from "nodemailer";
 import ejs from "ejs";
 import path from "path";
-import dotenv from "dotenv";
-
-dotenv.config();
+import {
+  EMAIL_SMTP_SERVICE_NAME,
+  EMAIL_SMTP_HOST,
+  EMAIL_SMTP_PORT,
+  EMAIL_SMTP_SECURE,
+  EMAIL_SMTP_USER,
+  EMAIL_SMTP_PASS
+} from "../env";
 
 const transporter = nodemailer.createTransport({
-  service: process.env.EMAIL_SMTP_SERVICE_NAME,
-  host: process.env.EMAIL_SMTP_HOST,
-  port: Number(process.env.EMAIL_SMTP_PORT) || 465,
-  secure: process.env.EMAIL_SMTP_SECURE === "true" || true,
+  service: EMAIL_SMTP_SERVICE_NAME,
+  host: EMAIL_SMTP_HOST,
+  port: Number(EMAIL_SMTP_PORT),
+  secure: EMAIL_SMTP_SECURE,
   auth: {
-    user: process.env.EMAIL_SMTP_USER,
-    pass: process.env.EMAIL_SMTP_PASS,
+    user: EMAIL_SMTP_USER,
+    pass: EMAIL_SMTP_PASS,
   },
   requireTLS: true,
 });
