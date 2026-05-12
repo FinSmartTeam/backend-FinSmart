@@ -6,7 +6,7 @@ export const SUPABASE_ANON_KEY: string = process.env.SUPABASE_ANON_KEY || "";
 export const SUPABASE_SERVICE_ROLE_KEY: string = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
 export const DATABASE_URL: string = process.env.DATABASE_URL || "";
 export const DATABASE_PASSWORD: string = process.env.DATABASE_PASSWORD || "";
-export const JWT_SECRET: string = process.env.SECRET_KEY || "";
+export const JWT_SECRET: string = process.env.JWT_SECRET || "";
 
 export const EMAIL_SMTP_SECURE: boolean =
   Boolean(process.env.EMAIL_SMTP_SECURE) || false;
