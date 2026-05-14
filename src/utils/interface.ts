@@ -1,8 +1,13 @@
 import { Request } from "express";
-import { User } from "@supabase/supabase-js";
+
+export interface IUserToken {
+  id: string;
+  email: string;
+  role: string;
+}
 
 export interface IReqUser extends Request {
-  user?: User;
+  user?: IUserToken;
 }
 
 export interface IPaginationQuery {
