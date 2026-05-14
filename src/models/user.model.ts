@@ -10,5 +10,5 @@ export const users = pgTable('users', {
   profilePicture: text('profile_picture').default('profile.png'),
   isActive: boolean('is_active').default(false),
   activationCode: varchar('activation_code', { length: 6 }),
-  createdAt: timestamp('created_at').defaultNow(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 });
