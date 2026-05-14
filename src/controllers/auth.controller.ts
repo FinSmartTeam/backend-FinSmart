@@ -172,7 +172,7 @@ export default {
     }
   },
 
-  async me(req: IReqUser, res: Response) {
+  async me(req: Request, res: Response) {
     /**
       #swagger.tags = ["Auth"]
       #swagger.summary = "Get current user profile"
@@ -182,17 +182,12 @@ export default {
       }]
      */
     try {
-      const token = req.headers.authorization?.split(" ")[1];
-      if (!token) {
-        return response.unauthorized(res, "No token provided");
+      const userReq = (req as IReqUser).user;
+      if (!userReq) {
+        return response.unauthorized(res, "User not found in request");
       }
 
-      if (!process.env.JWT_SECRET) {
-        throw new Error("JWT_SECRET is not defined");
-      }
-
-      const decoded = jwt.verify(token, process.env.JWT_SECRET) as any;
-      const [user] = await db.select().from(users).where(eq(users.id, decoded.id));
+      const [user] = await db.select().from(users).where(eq(users.id, userReq.id));
 
       if (!user) {
         return response.unauthorized(res, "Invalid token or user not found");
