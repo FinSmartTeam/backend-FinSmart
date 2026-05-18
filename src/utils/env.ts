@@ -8,7 +8,7 @@ export const DATABASE_URL: string = process.env.DATABASE_URL || "";
 export const DATABASE_PASSWORD: string = process.env.DATABASE_PASSWORD || "";
 export const JWT_SECRET: string = process.env.JWT_SECRET || "";
 
-export const AI_SERVICE_URL: string = process.env.AI_SERVICE_URL || "http://localhost:8000";
+export const AI_SERVICE_URL: string = process.env.AI_SERVICE_URL || "";
 
 export const EMAIL_SMTP_SECURE: boolean =
   Boolean(process.env.EMAIL_SMTP_SECURE) || false;

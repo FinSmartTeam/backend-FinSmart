@@ -5,6 +5,16 @@ import { transactions } from "../models/transaction.model";
 import { classifyTransaction } from "../services/ai.service";
 import { IReqUser } from "../utils/interface";
 
+const getDatePartsForAI = (dateInput?: string | Date) => {
+  const date = dateInput ? new Date(dateInput) : new Date();
+
+  return {
+    Week_Day: date.toLocaleDateString("en-US", { weekday: "long" }),
+    Month: date.toLocaleDateString("en-US", { month: "long" }),
+    Day: date.getDate(),
+  };
+};
+
 const create = async (req: Request, res: Response) => {
   try {
     const userId = (req as IReqUser).user?.id;
@@ -40,39 +50,34 @@ const create = async (req: Request, res: Response) => {
 
     const date = transactionDate ? new Date(transactionDate) : new Date();
 
-    let finalCategory = category || "Uncategorized";
+    let finalCategory = category || (type === "income" ? "Income" : "Uncategorized");
     let aiCategoryVal = null;
     let confidenceScoreVal = null;
     let sourceVal: "manual" | "ai" | "import" = "manual";
 
     if (type === "expense") {
-      const weekdayOptions: Intl.DateTimeFormatOptions = { weekday: "long" };
-      const monthOptions: Intl.DateTimeFormatOptions = { month: "long" };
-      
-      const weekdayStr = date.toLocaleDateString("en-US", weekdayOptions);
-      const monthStr = date.toLocaleDateString("en-US", monthOptions);
+      const dateParts = getDatePartsForAI(date);
 
       const aiPayload = {
         Amount: Number(amount),
-        PaymentMethod: paymentMethod || "Cash",
-        Location: location || "Unknown",
-        AccountType: accountType || "Savings",
-        TransactionType: transactionTypeRaw || "Debit",
-        DeviceUsed: deviceUsed || "Mobile",
-        MerchantType: merchantType || "Other",
-        LoyaltyProgram: loyaltyProgram ? "Yes" : "No",
-        Weekday: weekdayStr,
-        Month: monthStr,
-        TimeOfDay: timeOfDay || "Unknown",
+        Payment_Method: paymentMethod || "Debit Card",
+        MerchantName: merchantName || "Amazon",
+        Time_Of_Day: timeOfDay || "Evening",
+        Week_Day: dateParts.Week_Day,
+        Month: dateParts.Month,
+        Day: dateParts.Day,
       };
 
-      const aiResult = await classifyTransaction(aiPayload);
-
-      if (aiResult && aiResult.kategori) {
-        finalCategory = aiResult.kategori;
-        aiCategoryVal = aiResult.kategori;
-        confidenceScoreVal = aiResult.confidence ? String(aiResult.confidence) : null;
-        sourceVal = "ai";
+      try {
+        const aiResult = await classifyTransaction(aiPayload);
+        if (aiResult && aiResult.kategori) {
+          finalCategory = aiResult.kategori;
+          aiCategoryVal = aiResult.kategori;
+          confidenceScoreVal = aiResult.confidence ? String(aiResult.confidence) : null;
+          sourceVal = "ai";
+        }
+      } catch (aiError) {
+        console.error("AI classification failed, falling back to manual:", aiError);
       }
     }
 
@@ -107,7 +112,7 @@ const create = async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     console.error(error);
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({ message: error.message || "Internal server error" });
   }
 };
 
@@ -150,7 +155,7 @@ const findAll = async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     console.error(error);
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({ message: error.message || "Internal server error" });
   }
 };
 
@@ -162,6 +167,11 @@ const findOne = async (req: Request, res: Response) => {
     }
 
     const { id } = req.params;
+
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(id as string)) {
+      return res.status(400).json({ message: "Format ID transaksi tidak valid" });
+    }
 
     const [transaction] = await db
       .select()
@@ -178,7 +188,7 @@ const findOne = async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     console.error(error);
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({ message: error.message || "Internal server error" });
   }
 };
 
@@ -190,6 +200,12 @@ const update = async (req: Request, res: Response) => {
     }
 
     const { id } = req.params;
+    
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(id.toString())) {
+      return res.status(400).json({ message: "Format ID transaksi tidak valid" });
+    }
+
     const body = { ...req.body };
 
     if (body.userId) {
@@ -221,7 +237,7 @@ const update = async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     console.error(error);
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({ message: error.message || "Internal server error" });
   }
 };
 
@@ -233,6 +249,11 @@ const remove = async (req: Request, res: Response) => {
     }
 
     const { id } = req.params;
+
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(id.toString())) {
+      return res.status(400).json({ message: "Format ID transaksi tidak valid" });
+    }
 
     const [deletedTransaction] = await db
       .delete(transactions)
@@ -249,7 +270,7 @@ const remove = async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     console.error(error);
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({ message: error.message || "Internal server error" });
   }
 };
 
