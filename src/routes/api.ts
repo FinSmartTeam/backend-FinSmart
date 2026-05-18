@@ -1,6 +1,7 @@
 import express from "express";
 import authController from "../controllers/auth.controller";
 import transactionController from "../controllers/transaction.controller";
+import aiController from "../controllers/ai.controller";
 import authMiddleware from "../middlewares/auth.middleware";
 
 const router = express.Router();
@@ -17,5 +18,8 @@ router.get("/transactions", authMiddleware, transactionController.findAll);
 router.get("/transactions/:id", authMiddleware, transactionController.findOne);
 router.put("/transactions/:id", authMiddleware, transactionController.update);
 router.delete("/transactions/:id", authMiddleware, transactionController.remove);
+
+// AI wrapper routes
+router.get("/ai/valid-values", aiController.getValidValues);
 
 export default router;
