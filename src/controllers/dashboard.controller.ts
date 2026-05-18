@@ -11,6 +11,8 @@ const getSummary = async (req: Request, res: Response) => {
       "bearerAuth": []
     }]
     #swagger.description = 'Mendapatkan ringkasan total income, expense, balance, dan jumlah transaksi. Bisa di-filter berdasarkan month dan year opsional.'
+    #swagger.parameters['month'] = { description: 'Filter bulan (1-12)', type: 'string', required: false }
+    #swagger.parameters['year'] = { description: 'Filter tahun (contoh: 2026)', type: 'string', required: false }
   */
   try {
     const userId = (req as IReqUser).user?.id;
@@ -72,6 +74,8 @@ const getCategoryBreakdown = async (req: Request, res: Response) => {
       "bearerAuth": []
     }]
     #swagger.description = 'Mendapatkan distribusi pengeluaran berdasarkan kategori untuk pie chart. Bisa di-filter berdasarkan month dan year opsional.'
+    #swagger.parameters['month'] = { description: 'Filter bulan (1-12)', type: 'string', required: false }
+    #swagger.parameters['year'] = { description: 'Filter tahun (contoh: 2026)', type: 'string', required: false }
   */
   try {
     const userId = (req as IReqUser).user?.id;

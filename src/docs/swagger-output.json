@@ -339,6 +339,107 @@
           }
         ]
       }
+    },
+    "/ai/valid-values": {
+      "get": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/dashboard/summary": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "description": "Mendapatkan ringkasan total income, expense, balance, dan jumlah transaksi. Bisa di-filter berdasarkan month dan year opsional.",
+        "parameters": [
+          {
+            "name": "month",
+            "description": "Filter bulan (1-12)",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "year",
+            "description": "Filter tahun (contoh: 2026)",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/dashboard/category-breakdown": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "description": "Mendapatkan distribusi pengeluaran berdasarkan kategori untuk pie chart. Bisa di-filter berdasarkan month dan year opsional.",
+        "parameters": [
+          {
+            "name": "month",
+            "description": "Filter bulan (1-12)",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "year",
+            "description": "Filter tahun (contoh: 2026)",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
     }
   },
   "components": {
