@@ -475,6 +475,41 @@
           }
         ]
       }
+    },
+    "/dashboard/recent-transactions": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "description": "Mendapatkan transaksi terbaru milik user.",
+        "parameters": [
+          {
+            "name": "limit",
+            "description": "Batas jumlah transaksi (default: 5)",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
     }
   },
   "components": {

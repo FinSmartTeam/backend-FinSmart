@@ -197,8 +197,51 @@ const getMonthlyData = async (req: Request, res: Response) => {
   }
 };
 
+const getRecentTransactions = async (req: Request, res: Response) => {
+  /*
+    #swagger.tags = ['Dashboard']
+    #swagger.security = [{
+      "bearerAuth": []
+    }]
+    #swagger.description = 'Mendapatkan transaksi terbaru milik user.'
+    #swagger.parameters['limit'] = { description: 'Batas jumlah transaksi (default: 5)', type: 'number', required: false }
+  */
+  try {
+    const userId = (req as IReqUser).user?.id;
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const { limit } = req.query;
+    const limitNum = parseInt(limit as string) || 5;
+
+    const data = await db
+      .select({
+        id: transactions.id,
+        type: transactions.type,
+        amount: transactions.amount,
+        category: transactions.category,
+        description: transactions.description,
+        transactionDate: transactions.transactionDate,
+      })
+      .from(transactions)
+      .where(eq(transactions.userId, userId as string))
+      .orderBy(desc(transactions.transactionDate))
+      .limit(limitNum);
+
+    return res.status(200).json({
+      message: "Berhasil mengambil transaksi terbaru.",
+      data,
+    });
+  } catch (error: any) {
+    console.error("[Dashboard Recent Transactions Error]:", error);
+    return res.status(500).json({ message: error.message || "Internal server error" });
+  }
+};
+
 export default {
   getSummary,
   getCategoryBreakdown,
   getMonthlyData,
+  getRecentTransactions,
 };

@@ -27,5 +27,6 @@ router.get("/ai/valid-values", aiController.getValidValues);
 router.get("/dashboard/summary", authMiddleware, dashboardController.getSummary);
 router.get("/dashboard/category-breakdown", authMiddleware, dashboardController.getCategoryBreakdown);
 router.get("/dashboard/monthly", authMiddleware, dashboardController.getMonthlyData);
+router.get("/dashboard/recent-transactions", authMiddleware, dashboardController.getRecentTransactions);
 
 export default router;
