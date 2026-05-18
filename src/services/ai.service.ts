@@ -112,5 +112,5 @@ export const askFinBot = async (
 };
 
 export const getClassifyValidValues = async (): Promise<any> => {
-  return fetchFromAI<any>("/classify/valid-values", null, "GET");
+  return fetchFromAI<any>("/valid-values", null, "GET");
 };
