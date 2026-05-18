@@ -123,7 +123,82 @@ const getCategoryBreakdown = async (req: Request, res: Response) => {
   }
 };
 
+const getMonthlyData = async (req: Request, res: Response) => {
+  /*
+    #swagger.tags = ['Dashboard']
+    #swagger.security = [{
+      "bearerAuth": []
+    }]
+    #swagger.description = 'Mendapatkan grafik pemasukan dan pengeluaran per bulan. Bisa di-filter berdasarkan year opsional.'
+    #swagger.parameters['year'] = { description: 'Filter tahun (contoh: 2026)', type: 'string', required: false }
+  */
+  try {
+    const userId = (req as IReqUser).user?.id;
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    let { year } = req.query;
+    if (!year) {
+      year = new Date().getFullYear().toString();
+    }
+    
+    const conditions = [
+      eq(transactions.userId, userId as string),
+      sql`EXTRACT(YEAR FROM ${transactions.transactionDate}) = ${Number(year)}`
+    ];
+
+    const data = await db
+      .select({
+        type: transactions.type,
+        amount: transactions.amount,
+        month: sql<number>`EXTRACT(MONTH FROM ${transactions.transactionDate})`
+      })
+      .from(transactions)
+      .where(and(...conditions));
+
+    const monthNames = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+
+    const monthlyData = monthNames.map((name, index) => ({
+      month: name,
+      monthNumber: index + 1,
+      income: 0,
+      expense: 0,
+      balance: 0
+    }));
+
+    data.forEach((item) => {
+      const monthIdx = Number(item.month) - 1;
+      const amt = Number(item.amount);
+
+      if (monthlyData[monthIdx]) {
+        if (item.type === "income") {
+          monthlyData[monthIdx].income += amt;
+        } else if (item.type === "expense") {
+          monthlyData[monthIdx].expense += amt;
+        }
+      }
+    });
+
+    monthlyData.forEach(m => {
+      m.balance = m.income - m.expense;
+    });
+
+    return res.status(200).json({
+      message: "Berhasil mengambil data bulanan.",
+      data: monthlyData,
+    });
+  } catch (error: any) {
+    console.error("[Dashboard Monthly Data Error]:", error);
+    return res.status(500).json({ message: error.message || "Internal server error" });
+  }
+};
+
 export default {
   getSummary,
   getCategoryBreakdown,
+  getMonthlyData,
 };
