@@ -67,6 +67,28 @@ const doc = {
       RemoveMediaRequest: {
         mediaUrl: "fileURL",
       },
+      CreateTransactionRequest: {
+        type: "expense",
+        amount: 250000,
+        description: "Beli perlengkapan kerja",
+        merchantName: "Amazon",
+        paymentMethod: "Credit Card",
+        location: "Jakarta",
+        accountType: "Credit",
+        transactionTypeRaw: "Debit",
+        deviceUsed: "Desktop",
+        merchantType: "Ecommerce",
+        loyaltyProgram: false,
+        timeOfDay: "Evening",
+        currency: "IDR",
+        transactionDate: "2026-05-18T10:00:00.000Z",
+        category: "Boleh dikosongkan (otomatis diisi AI untuk expense)"
+      },
+      UpdateTransactionRequest: {
+        amount: 80000,
+        description: "Beli barang (Edit)",
+        category: "Food"
+      }
     },
   },
 };

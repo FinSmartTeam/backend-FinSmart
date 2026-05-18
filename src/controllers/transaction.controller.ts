@@ -16,6 +16,21 @@ const getDatePartsForAI = (dateInput?: string | Date) => {
 };
 
 const create = async (req: Request, res: Response) => {
+  /*
+    #swagger.tags = ['Transactions']
+    #swagger.security = [{
+      "bearerAuth": []
+    }]
+    #swagger.description = 'Membuat transaksi baru. Jika type expense, akan menggunakan AI otomatis.'
+    #swagger.requestBody = {
+      required: true,
+      content: {
+        "application/json": {
+          schema: { $ref: "#/components/schemas/CreateTransactionRequest" }
+        }
+      }
+    }
+  */
   try {
     const userId = (req as IReqUser).user?.id;
     if (!userId) {
@@ -117,6 +132,13 @@ const create = async (req: Request, res: Response) => {
 };
 
 const findAll = async (req: Request, res: Response) => {
+  /*
+    #swagger.tags = ['Transactions']
+    #swagger.security = [{
+      "bearerAuth": []
+    }]
+    #swagger.description = 'Mendapatkan daftar semua transaksi milik user yang login.'
+  */
   try {
     const userId = (req as IReqUser).user?.id;
     if (!userId) {
@@ -160,6 +182,13 @@ const findAll = async (req: Request, res: Response) => {
 };
 
 const findOne = async (req: Request, res: Response) => {
+  /*
+    #swagger.tags = ['Transactions']
+    #swagger.security = [{
+      "bearerAuth": []
+    }]
+    #swagger.description = 'Mendapatkan detail transaksi berdasarkan ID.'
+  */
   try {
     const userId = (req as IReqUser).user?.id;
     if (!userId) {
@@ -193,6 +222,21 @@ const findOne = async (req: Request, res: Response) => {
 };
 
 const update = async (req: Request, res: Response) => {
+  /*
+    #swagger.tags = ['Transactions']
+    #swagger.security = [{
+      "bearerAuth": []
+    }]
+    #swagger.description = 'Mengubah transaksi berdasarkan ID.'
+    #swagger.requestBody = {
+      required: true,
+      content: {
+        "application/json": {
+          schema: { $ref: "#/components/schemas/UpdateTransactionRequest" }
+        }
+      }
+    }
+  */
   try {
     const userId = (req as IReqUser).user?.id;
     if (!userId) {
@@ -242,6 +286,13 @@ const update = async (req: Request, res: Response) => {
 };
 
 const remove = async (req: Request, res: Response) => {
+  /*
+    #swagger.tags = ['Transactions']
+    #swagger.security = [{
+      "bearerAuth": []
+    }]
+    #swagger.description = 'Menghapus transaksi berdasarkan ID.'
+  */
   try {
     const userId = (req as IReqUser).user?.id;
     if (!userId) {

@@ -127,7 +127,10 @@
     },
     "/transactions": {
       "post": {
-        "description": "",
+        "tags": [
+          "Transactions"
+        ],
+        "description": "Membuat transaksi baru. Jika type expense, akan menggunakan AI otomatis.",
         "responses": {
           "201": {
             "description": "Created"
@@ -142,65 +145,27 @@
             "description": "Internal Server Error"
           }
         },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "type": {
-                    "example": "any"
-                  },
-                  "amount": {
-                    "example": "any"
-                  },
-                  "description": {
-                    "example": "any"
-                  },
-                  "merchantName": {
-                    "example": "any"
-                  },
-                  "paymentMethod": {
-                    "example": "any"
-                  },
-                  "location": {
-                    "example": "any"
-                  },
-                  "accountType": {
-                    "example": "any"
-                  },
-                  "transactionTypeRaw": {
-                    "example": "any"
-                  },
-                  "deviceUsed": {
-                    "example": "any"
-                  },
-                  "merchantType": {
-                    "example": "any"
-                  },
-                  "loyaltyProgram": {
-                    "example": "any"
-                  },
-                  "timeOfDay": {
-                    "example": "any"
-                  },
-                  "currency": {
-                    "example": "any"
-                  },
-                  "transactionDate": {
-                    "example": "any"
-                  },
-                  "category": {
-                    "example": "any"
-                  }
-                }
+                "$ref": "#/components/schemas/CreateTransactionRequest"
               }
             }
           }
         }
       },
       "get": {
-        "description": "",
+        "tags": [
+          "Transactions"
+        ],
+        "description": "Mendapatkan daftar semua transaksi milik user yang login.",
         "parameters": [
           {
             "name": "type",
@@ -241,12 +206,20 @@
           "500": {
             "description": "Internal Server Error"
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       }
     },
     "/transactions/{id}": {
       "get": {
-        "description": "",
+        "tags": [
+          "Transactions"
+        ],
+        "description": "Mendapatkan detail transaksi berdasarkan ID.",
         "parameters": [
           {
             "name": "id",
@@ -261,6 +234,9 @@
           "200": {
             "description": "OK"
           },
+          "400": {
+            "description": "Bad Request"
+          },
           "401": {
             "description": "Unauthorized"
           },
@@ -270,10 +246,18 @@
           "500": {
             "description": "Internal Server Error"
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       },
       "put": {
-        "description": "",
+        "tags": [
+          "Transactions"
+        ],
+        "description": "Mengubah transaksi berdasarkan ID.",
         "parameters": [
           {
             "name": "id",
@@ -288,6 +272,9 @@
           "200": {
             "description": "OK"
           },
+          "400": {
+            "description": "Bad Request"
+          },
           "401": {
             "description": "Unauthorized"
           },
@@ -296,11 +283,29 @@
           },
           "500": {
             "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTransactionRequest"
+              }
+            }
           }
         }
       },
       "delete": {
-        "description": "",
+        "tags": [
+          "Transactions"
+        ],
+        "description": "Menghapus transaksi berdasarkan ID.",
         "parameters": [
           {
             "name": "id",
@@ -315,6 +320,9 @@
           "200": {
             "description": "OK"
           },
+          "400": {
+            "description": "Bad Request"
+          },
           "401": {
             "description": "Unauthorized"
           },
@@ -324,7 +332,12 @@
           "500": {
             "description": "Internal Server Error"
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       }
     }
   },
@@ -509,6 +522,94 @@
         },
         "xml": {
           "name": "RemoveMediaRequest"
+        }
+      },
+      "CreateTransactionRequest": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "example": "expense"
+          },
+          "amount": {
+            "type": "number",
+            "example": 250000
+          },
+          "description": {
+            "type": "string",
+            "example": "Beli perlengkapan kerja"
+          },
+          "merchantName": {
+            "type": "string",
+            "example": "Amazon"
+          },
+          "paymentMethod": {
+            "type": "string",
+            "example": "Credit Card"
+          },
+          "location": {
+            "type": "string",
+            "example": "Jakarta"
+          },
+          "accountType": {
+            "type": "string",
+            "example": "Credit"
+          },
+          "transactionTypeRaw": {
+            "type": "string",
+            "example": "Debit"
+          },
+          "deviceUsed": {
+            "type": "string",
+            "example": "Desktop"
+          },
+          "merchantType": {
+            "type": "string",
+            "example": "Ecommerce"
+          },
+          "loyaltyProgram": {
+            "type": "boolean",
+            "example": false
+          },
+          "timeOfDay": {
+            "type": "string",
+            "example": "Evening"
+          },
+          "currency": {
+            "type": "string",
+            "example": "IDR"
+          },
+          "transactionDate": {
+            "type": "string",
+            "example": "2026-05-18T10:00:00.000Z"
+          },
+          "category": {
+            "type": "string",
+            "example": "Boleh dikosongkan (otomatis diisi AI untuk expense)"
+          }
+        },
+        "xml": {
+          "name": "CreateTransactionRequest"
+        }
+      },
+      "UpdateTransactionRequest": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "number",
+            "example": 80000
+          },
+          "description": {
+            "type": "string",
+            "example": "Beli barang (Edit)"
+          },
+          "category": {
+            "type": "string",
+            "example": "Food"
+          }
+        },
+        "xml": {
+          "name": "UpdateTransactionRequest"
         }
       }
     }
