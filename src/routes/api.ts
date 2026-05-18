@@ -2,6 +2,7 @@ import express from "express";
 import authController from "../controllers/auth.controller";
 import transactionController from "../controllers/transaction.controller";
 import aiController from "../controllers/ai.controller";
+import dashboardController from "../controllers/dashboard.controller";
 import authMiddleware from "../middlewares/auth.middleware";
 
 const router = express.Router();
@@ -21,5 +22,9 @@ router.delete("/transactions/:id", authMiddleware, transactionController.remove)
 
 // AI wrapper routes
 router.get("/ai/valid-values", aiController.getValidValues);
+
+// Dashboard Routes
+router.get("/dashboard/summary", authMiddleware, dashboardController.getSummary);
+router.get("/dashboard/category-breakdown", authMiddleware, dashboardController.getCategoryBreakdown);
 
 export default router;
