@@ -3,6 +3,7 @@ import authController from "../controllers/auth.controller";
 import transactionController from "../controllers/transaction.controller";
 import aiController from "../controllers/ai.controller";
 import dashboardController from "../controllers/dashboard.controller";
+import financialProfileController from "../controllers/financial-profile.controller";
 import authMiddleware from "../middlewares/auth.middleware";
 
 const router = express.Router();
@@ -28,5 +29,9 @@ router.get("/dashboard/summary", authMiddleware, dashboardController.getSummary)
 router.get("/dashboard/category-breakdown", authMiddleware, dashboardController.getCategoryBreakdown);
 router.get("/dashboard/monthly", authMiddleware, dashboardController.getMonthlyData);
 router.get("/dashboard/recent-transactions", authMiddleware, dashboardController.getRecentTransactions);
+
+// Financial Profile Routes
+router.get("/financial-profile", authMiddleware, financialProfileController.getProfile);
+router.put("/financial-profile", authMiddleware, financialProfileController.updateProfile);
 
 export default router;

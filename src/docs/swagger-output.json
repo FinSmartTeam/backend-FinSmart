@@ -510,6 +510,78 @@
           }
         ]
       }
+    },
+    "/financial-profile": {
+      "get": {
+        "tags": [
+          "Financial Profile"
+        ],
+        "description": "Mendapatkan data profil finansial user. Jika belum ada, otomatis dibuat default.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Financial Profile"
+        ],
+        "description": "Memperbarui profil finansial user.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "monthlyIncome": {
+                    "example": "any"
+                  },
+                  "savingsTarget": {
+                    "example": "any"
+                  },
+                  "totalSavings": {
+                    "example": "any"
+                  },
+                  "riskLevel": {
+                    "example": "any"
+                  },
+                  "financialGoal": {
+                    "example": "any"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
