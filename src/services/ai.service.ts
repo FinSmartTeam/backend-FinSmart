@@ -114,3 +114,7 @@ export const askFinBot = async (
 export const getClassifyValidValues = async (): Promise<any> => {
   return fetchFromAI<any>("/valid-values", null, "GET");
 };
+
+export const getModelInformation = async (): Promise<any> => {
+  return fetchFromAI<any>("/model-info", null, "GET");
+};

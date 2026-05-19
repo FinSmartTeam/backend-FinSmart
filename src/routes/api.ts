@@ -24,6 +24,8 @@ router.delete("/transactions/:id", authMiddleware, transactionController.remove)
 
 // AI wrapper routes
 router.get("/ai/valid-values", aiController.getValidValues);
+router.get("/ai/model-info", aiController.getModelInfo);
+router.post("/ai/finbot-chat", authMiddleware, aiController.askFinBotChat);
 
 // Dashboard Routes
 router.get("/dashboard/summary", authMiddleware, dashboardController.getSummary);
