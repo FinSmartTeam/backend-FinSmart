@@ -342,7 +342,10 @@
     },
     "/ai/valid-values": {
       "get": {
-        "description": "",
+        "tags": [
+          "AI Services"
+        ],
+        "description": "Mendapatkan valid values untuk keperluan input",
         "responses": {
           "200": {
             "description": "OK"
@@ -369,7 +372,7 @@
         }
       }
     },
-    "/ai/finbot/chat": {
+    "/ai/finbot-chat": {
       "post": {
         "tags": [
           "AI Services"

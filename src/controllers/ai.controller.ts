@@ -2,6 +2,10 @@ import { Request, Response } from "express";
 import { getClassifyValidValues, getModelInformation, askFinBot } from "../services/ai.service";
 
 const getValidValues = async (req: Request, res: Response) => {
+  /*
+    #swagger.tags = ['AI Services']
+    #swagger.description = 'Mendapatkan valid values untuk keperluan input'
+  */
   try {
     const data = await getClassifyValidValues();
     

@@ -40,7 +40,7 @@ router.put("/financial-profile", authMiddleware, financialProfileController.upda
 // Budget Routes
 router.post("/budgets", authMiddleware, budgetController.create);
 router.get("/budgets", authMiddleware, budgetController.findAll);
-router.get("/budgets/status", authMiddleware, budgetController.getStatus); // status must be above :id
+router.get("/budgets/status", authMiddleware, budgetController.getStatus);
 router.get("/budgets/:id", authMiddleware, budgetController.findOne);
 router.put("/budgets/:id", authMiddleware, budgetController.update);
 router.delete("/budgets/:id", authMiddleware, budgetController.remove);
