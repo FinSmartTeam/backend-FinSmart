@@ -126,6 +126,11 @@ const findOne = async (req: Request, res: Response) => {
 
     const { id } = req.params;
     
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(id.toString())) {
+      return res.status(400).json({ message: "Format ID tidak valid" });
+    }
+    
     const [budget] = await db
       .select()
       .from(budgets)
@@ -165,6 +170,12 @@ const update = async (req: Request, res: Response) => {
     if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
     const { id } = req.params;
+    
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(id.toString())) {
+      return res.status(400).json({ message: "Format ID tidak valid" });
+    }
+    
     const { limitAmount } = req.body || {};
 
     if (limitAmount !== undefined && Number(limitAmount) <= 0) {
@@ -206,6 +217,11 @@ const remove = async (req: Request, res: Response) => {
     if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
     const { id } = req.params;
+
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(id.toString())) {
+      return res.status(400).json({ message: "Format ID tidak valid" });
+    }
 
     const [deletedBudget] = await db
       .delete(budgets)
