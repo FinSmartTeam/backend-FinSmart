@@ -115,6 +115,6 @@ export const getClassifyValidValues = async (): Promise<any> => {
   return fetchFromAI<any>("/valid-values", null, "GET");
 };
 
-export const getModelInformation = async (): Promise<any> => {
+export const getModelInfo = async (): Promise<any> => {
   return fetchFromAI<any>("/model-info", null, "GET");
 };

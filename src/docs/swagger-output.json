@@ -420,6 +420,106 @@
         }
       }
     },
+    "/ai/behavior": {
+      "post": {
+        "tags": [
+          "AI Services"
+        ],
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "Income": {
+                    "example": "any"
+                  },
+                  "Needs": {
+                    "example": "any"
+                  },
+                  "Wants": {
+                    "example": "any"
+                  },
+                  "Savings": {
+                    "example": "any"
+                  },
+                  "Total_Spending": {
+                    "example": "any"
+                  },
+                  "Financial_Balance": {
+                    "example": "any"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ai/rekomendasi": {
+      "post": {
+        "tags": [
+          "AI Services"
+        ],
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "tabungan_total": {
+                    "example": "any"
+                  },
+                  "total_pengeluaran_bulanan": {
+                    "example": "any"
+                  },
+                  "tabungan_bulanan": {
+                    "example": "any"
+                  },
+                  "income_bulanan": {
+                    "example": "any"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/dashboard/summary": {
       "get": {
         "tags": [

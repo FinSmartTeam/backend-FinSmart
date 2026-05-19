@@ -26,6 +26,8 @@ router.delete("/transactions/:id", authMiddleware, transactionController.remove)
 router.get("/ai/valid-values", aiController.getValidValues);
 router.get("/ai/model-info", aiController.getModelInfo);
 router.post("/ai/finbot-chat", authMiddleware, aiController.askFinBotChat);
+router.post("/ai/behavior", authMiddleware, aiController.getBehavior);
+router.post("/ai/rekomendasi", authMiddleware, aiController.getRekomendasi);
 
 // Dashboard Routes
 router.get("/dashboard/summary", authMiddleware, dashboardController.getSummary);
