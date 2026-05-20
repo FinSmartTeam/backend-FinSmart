@@ -6,6 +6,7 @@ import dashboardController from "../controllers/dashboard.controller";
 import financialProfileController from "../controllers/financial-profile.controller";
 import budgetController from "../controllers/budget.controller";
 import insightController from "../controllers/insight.controller";
+import reportController from "../controllers/report.controller";
 import authMiddleware from "../middlewares/auth.middleware";
 
 const router = express.Router();
@@ -43,6 +44,9 @@ router.put("/financial-profile", authMiddleware, financialProfileController.upda
 // Insight Routes
 router.get("/insights/behavior", authMiddleware, insightController.getBehaviorInsight);
 router.get("/insights/rekomendasi", authMiddleware, insightController.getInvestmentInsight);
+
+// Report Routes
+router.get("/reports/monthly", authMiddleware, reportController.getMonthlyReport);
 
 // Budget Routes
 router.post("/budgets", authMiddleware, budgetController.create);
