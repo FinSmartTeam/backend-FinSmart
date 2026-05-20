@@ -5,6 +5,7 @@ import aiController from "../controllers/ai.controller";
 import dashboardController from "../controllers/dashboard.controller";
 import financialProfileController from "../controllers/financial-profile.controller";
 import budgetController from "../controllers/budget.controller";
+import insightController from "../controllers/insight.controller";
 import authMiddleware from "../middlewares/auth.middleware";
 
 const router = express.Router();
@@ -38,6 +39,10 @@ router.get("/dashboard/recent-transactions", authMiddleware, dashboardController
 // Financial Profile Routes
 router.get("/financial-profile", authMiddleware, financialProfileController.getProfile);
 router.put("/financial-profile", authMiddleware, financialProfileController.updateProfile);
+
+// Insight Routes
+router.get("/insights/behavior", authMiddleware, insightController.getBehaviorInsight);
+router.get("/insights/rekomendasi", authMiddleware, insightController.getInvestmentInsight);
 
 // Budget Routes
 router.post("/budgets", authMiddleware, budgetController.create);
