@@ -8,6 +8,7 @@ import { users } from "../models/user.model";
 import { sendOtpEmail } from "../utils/mail/mail";
 import response from "../utils/response";
 import { IReqUser } from "../utils/interface";
+import uploader from "../utils/uploader";
 
 type TRegister = {
   fullName: string;
@@ -268,6 +269,79 @@ export default {
       );
     } catch (error) {
       response.error(res, error, "Failed to activate user");
+    }
+  },
+
+  async updateProfile(req: Request, res: Response) {
+    /**
+      #swagger.tags = ["Auth"]
+      #swagger.summary = "Update user profile"
+      #swagger.description = "Update the currently authenticated user's profile (name, password, and profile picture). Supports multipart/form-data."
+      #swagger.security = [{
+        "bearerAuth": []
+      }]
+      #swagger.consumes = ['multipart/form-data']
+      #swagger.parameters['fullName'] = { in: 'formData', type: 'string', description: 'Full name of the user' }
+      #swagger.parameters['password'] = { in: 'formData', type: 'string', description: 'New password (optional)' }
+      #swagger.parameters['profilePicture'] = { in: 'formData', type: 'file', description: 'Profile picture image' }
+     */
+    try {
+      const userReq = (req as IReqUser).user;
+      if (!userReq) {
+        return response.unauthorized(res, "User not found in request");
+      }
+
+      const { fullName, password } = req.body;
+      const file = req.file;
+
+      const updateData: any = {};
+      
+      if (fullName) {
+        updateData.fullName = fullName;
+      }
+      
+      if (password) {
+        updateData.password = await bcrypt.hash(password, 10);
+      }
+
+      if (file) {
+        const uploadResult = await uploader.uploadSingle(file);
+        updateData.profilePicture = uploadResult.secure_url;
+      }
+
+      if (Object.keys(updateData).length === 0) {
+        return res.status(400).json({
+          meta: { status: 400, message: "No fields to update" },
+          data: null
+        });
+      }
+
+      const [updatedUser] = await db
+        .update(users)
+        .set(updateData)
+        .where(eq(users.id, userReq.id))
+        .returning();
+
+      if (!updatedUser) {
+        return res.status(404).json({
+          meta: { status: 404, message: "User not found" },
+          data: null
+        });
+      }
+
+      const userProfile = {
+        id: updatedUser.id,
+        fullName: updatedUser.fullName,
+        username: updatedUser.username,
+        email: updatedUser.email,
+        role: updatedUser.role,
+        profilePicture: updatedUser.profilePicture,
+      };
+
+      response.success(res, userProfile, "Profile updated successfully");
+    } catch (error) {
+      console.error("[Update Profile Error]:", error);
+      response.error(res, error, "Failed to update profile");
     }
   },
 };

@@ -93,6 +93,71 @@
         ]
       }
     },
+    "/auth/profile": {
+      "put": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Update user profile",
+        "description": "Update the currently authenticated user's profile (name, password, and profile picture). Supports multipart/form-data.",
+        "parameters": [
+          {
+            "name": "fullName",
+            "in": "formData",
+            "description": "Full name of the user",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "password",
+            "in": "formData",
+            "description": "New password (optional)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "profilePicture",
+            "in": "formData",
+            "description": "Profile picture image",
+            "schema": {
+              "type": "file"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "fullName": {
+                    "example": "any"
+                  },
+                  "password": {
+                    "example": "any"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/auth/activation": {
       "post": {
         "tags": [

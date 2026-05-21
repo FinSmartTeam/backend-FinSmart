@@ -8,6 +8,7 @@ import budgetController from "../controllers/budget.controller";
 import insightController from "../controllers/insight.controller";
 import reportController from "../controllers/report.controller";
 import authMiddleware from "../middlewares/auth.middleware";
+import { uploadSingle } from "../middlewares/upload.middleware";
 
 const router = express.Router();
 
@@ -15,6 +16,7 @@ const router = express.Router();
 router.post("/auth/register", authController.register);
 router.post("/auth/login", authController.login);
 router.get("/auth/me", authMiddleware, authController.me);
+router.put("/auth/profile", authMiddleware, uploadSingle, authController.updateProfile);
 router.post("/auth/activation", authController.activation);
 
 // Transaction Routes
