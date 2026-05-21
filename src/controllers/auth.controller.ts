@@ -9,6 +9,7 @@ import { sendOtpEmail } from "../utils/mail/mail";
 import response from "../utils/response";
 import { IReqUser } from "../utils/interface";
 import uploader from "../utils/uploader";
+import { v2 as cloudinary } from "cloudinary";
 
 type TRegister = {
   fullName: string;
@@ -80,12 +81,14 @@ export default {
       if (existingUsers.length > 0) {
         return res.status(409).json({
           meta: { status: 409, message: "Email or Username already exists" },
-          data: null
+          data: null,
         });
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
-      const activationCode = Math.floor(100000 + Math.random() * 900000).toString();
+      const activationCode = Math.floor(
+        100000 + Math.random() * 900000,
+      ).toString();
 
       const [newUser] = await db
         .insert(users)
@@ -96,11 +99,19 @@ export default {
           password: hashedPassword,
           activationCode,
         })
-        .returning({ id: users.id, email: users.email, fullName: users.fullName });
+        .returning({
+          id: users.id,
+          email: users.email,
+          fullName: users.fullName,
+        });
 
       await sendOtpEmail(newUser.email, newUser.fullName, activationCode);
 
-      response.success(res, newUser, "User registered successfully. Please check your email for the activation code.");
+      response.success(
+        res,
+        newUser,
+        "User registered successfully. Please check your email for the activation code.",
+      );
     } catch (error) {
       response.error(res, error, "Failed to register user");
     }
@@ -120,13 +131,13 @@ export default {
 
     try {
       if (!email || !password) {
-        return response.unauthorized(
-          res,
-          "Email and password are required",
-        );
+        return response.unauthorized(res, "Email and password are required");
       }
 
-      const [user] = await db.select().from(users).where(eq(users.email, email));
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.email, email));
 
       if (!user) {
         return response.unauthorized(res, "Invalid credentials");
@@ -138,7 +149,10 @@ export default {
       }
 
       if (!user.isActive) {
-        return response.unauthorized(res, "Account is not activated. Please check your email for OTP.");
+        return response.unauthorized(
+          res,
+          "Account is not activated. Please check your email for OTP.",
+        );
       }
 
       if (!process.env.JWT_SECRET) {
@@ -152,7 +166,7 @@ export default {
           role: user.role,
         },
         process.env.JWT_SECRET,
-        { expiresIn: "1d" }
+        { expiresIn: "1d" },
       );
 
       const payload = {
@@ -164,7 +178,7 @@ export default {
           email: user.email,
           role: user.role,
           profilePicture: user.profilePicture,
-        }
+        },
       };
 
       response.success(res, payload, "Login successful");
@@ -188,19 +202,22 @@ export default {
         return response.unauthorized(res, "User not found in request");
       }
 
-      const [user] = await db.select().from(users).where(eq(users.id, userReq.id));
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, userReq.id));
 
       if (!user) {
         return response.unauthorized(res, "Invalid token or user not found");
       }
 
       const userProfile = {
-          id: user.id,
-          fullName: user.fullName,
-          username: user.username,
-          email: user.email,
-          role: user.role,
-          profilePicture: user.profilePicture,
+        id: user.id,
+        fullName: user.fullName,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        profilePicture: user.profilePicture,
       };
 
       response.success(res, userProfile, "User profile fetched successfully");
@@ -222,35 +239,38 @@ export default {
       }
     */
     try {
-      const { code, email } = req.body as { code: string, email: string };
+      const { code, email } = req.body as { code: string; email: string };
 
       if (!code || !email) {
         return res.status(400).json({
           meta: { status: 400, message: "Email and code are required" },
-          data: null
+          data: null,
         });
       }
 
-      const [user] = await db.select().from(users).where(eq(users.email, email));
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.email, email));
 
       if (!user) {
         return res.status(404).json({
           meta: { status: 404, message: "User not found" },
-          data: null
+          data: null,
         });
       }
 
       if (user.isActive) {
         return res.status(400).json({
           meta: { status: 400, message: "Account is already active" },
-          data: null
+          data: null,
         });
       }
 
       if (user.activationCode !== code) {
         return res.status(400).json({
           meta: { status: 400, message: "Invalid activation code" },
-          data: null
+          data: null,
         });
       }
 
@@ -295,24 +315,31 @@ export default {
       const file = req.file;
 
       const updateData: any = {};
-      
+
       if (fullName) {
         updateData.fullName = fullName;
       }
-      
+
       if (password) {
         updateData.password = await bcrypt.hash(password, 10);
       }
 
       if (file) {
         const uploadResult = await uploader.uploadSingle(file);
-        updateData.profilePicture = uploadResult.secure_url;
+        const optimizedUrl = cloudinary.url(uploadResult.public_id, {
+          quality: "auto",
+          fetch_format: "auto",
+          width: 800,
+          crop: "scale",
+          secure: true,
+        });
+        updateData.profilePicture = optimizedUrl || uploadResult.secure_url;
       }
 
       if (Object.keys(updateData).length === 0) {
         return res.status(400).json({
           meta: { status: 400, message: "No fields to update" },
-          data: null
+          data: null,
         });
       }
 
@@ -325,7 +352,7 @@ export default {
       if (!updatedUser) {
         return res.status(404).json({
           meta: { status: 404, message: "User not found" },
-          data: null
+          data: null,
         });
       }
 
