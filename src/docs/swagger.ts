@@ -29,11 +29,11 @@ const doc = {
         password: "Password123",
       },
       RegisterRequest: {
-        fullName: "John Doe",
-        username: "johndoe",
-        email: "user@example.com",
-        password: "Password123",
-        confirmPassword: "Password123"
+        $fullName: "John Doe",
+        username: "johndoe (opsional)",
+        $email: "user@example.com",
+        $password: "Password123",
+        $confirmPassword: "Password123"
       },
       ActivationRequest: {
         email: "user@example.com",
