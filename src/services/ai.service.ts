@@ -78,8 +78,8 @@ const fetchFromAI = async <T>(
     let errorText = "";
     try {
       errorText = await response.text();
-    } catch (e) {}
-    
+    } catch (e) { }
+
     console.error(`[AI Service Error] ${method} ${url} returned ${response.status}:`, errorText);
     throw new Error(`AI Service merespons dengan error ${response.status}: ${errorText}`);
   }

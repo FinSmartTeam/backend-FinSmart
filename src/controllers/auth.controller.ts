@@ -13,7 +13,7 @@ import { v2 as cloudinary } from "cloudinary";
 
 type TRegister = {
   fullName: string;
-  username: string;
+  username?: string;
   email: string;
   password: string;
   confirmPassword: string;
@@ -26,7 +26,7 @@ type TLogin = {
 
 const registerValidateSchema = Yup.object({
   fullName: Yup.string().required(),
-  username: Yup.string().required(),
+  username: Yup.string().optional().nullable(),
   email: Yup.string().required(),
   password: Yup.string()
     .required()
@@ -76,7 +76,7 @@ export default {
       const existingUsers = await db
         .select()
         .from(users)
-        .where(or(eq(users.email, email), eq(users.username, username)));
+        .where(username ? or(eq(users.email, email), eq(users.username, username)) : eq(users.email, email));
 
       if (existingUsers.length > 0) {
         return res.status(409).json({
@@ -94,7 +94,7 @@ export default {
         .insert(users)
         .values({
           fullName,
-          username,
+          username: username || null,
           email,
           password: hashedPassword,
           activationCode,
