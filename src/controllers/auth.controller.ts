@@ -13,7 +13,6 @@ import { v2 as cloudinary } from "cloudinary";
 
 type TRegister = {
   fullName: string;
-  username?: string;
   email: string;
   password: string;
   confirmPassword: string;
@@ -26,7 +25,6 @@ type TLogin = {
 
 const registerValidateSchema = Yup.object({
   fullName: Yup.string().required(),
-  username: Yup.string().optional().nullable(),
   email: Yup.string().required(),
   password: Yup.string()
     .required()
@@ -61,13 +59,12 @@ export default {
         schema: { $ref: "#/components/schemas/RegisterRequest" }
       }
      */
-    const { fullName, username, email, password, confirmPassword } =
+    const { fullName, email, password, confirmPassword } =
       req.body as unknown as TRegister;
 
     try {
       await registerValidateSchema.validate({
         fullName,
-        username,
         email,
         password,
         confirmPassword,
@@ -76,11 +73,11 @@ export default {
       const existingUsers = await db
         .select()
         .from(users)
-        .where(username ? or(eq(users.email, email), eq(users.username, username)) : eq(users.email, email));
+        .where(eq(users.email, email));
 
       if (existingUsers.length > 0) {
         return res.status(409).json({
-          meta: { status: 409, message: "Email or Username already exists" },
+          meta: { status: 409, message: "Email already exists" },
           data: null,
         });
       }
@@ -94,7 +91,6 @@ export default {
         .insert(users)
         .values({
           fullName,
-          username: username || null,
           email,
           password: hashedPassword,
           activationCode,
@@ -174,7 +170,6 @@ export default {
         user: {
           id: user.id,
           fullName: user.fullName,
-          username: user.username,
           email: user.email,
           role: user.role,
           profilePicture: user.profilePicture,
@@ -214,7 +209,6 @@ export default {
       const userProfile = {
         id: user.id,
         fullName: user.fullName,
-        username: user.username,
         email: user.email,
         role: user.role,
         profilePicture: user.profilePicture,
@@ -359,7 +353,6 @@ export default {
       const userProfile = {
         id: updatedUser.id,
         fullName: updatedUser.fullName,
-        username: updatedUser.username,
         email: updatedUser.email,
         role: updatedUser.role,
         profilePicture: updatedUser.profilePicture,

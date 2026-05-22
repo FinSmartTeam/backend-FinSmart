@@ -1243,10 +1243,6 @@
             "type": "string",
             "example": "John Doe"
           },
-          "username": {
-            "type": "string",
-            "example": "johndoe (opsional)"
-          },
           "email": {
             "type": "string",
             "example": "user@example.com"

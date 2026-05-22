@@ -30,7 +30,6 @@ const doc = {
       },
       RegisterRequest: {
         $fullName: "John Doe",
-        username: "johndoe (opsional)",
         $email: "user@example.com",
         $password: "Password123",
         $confirmPassword: "Password123"
