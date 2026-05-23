@@ -115,6 +115,31 @@ export const getClassifyValidValues = async (): Promise<any> => {
   return fetchFromAI<any>("/valid-values", null, "GET");
 };
 
+export interface AIPredictSpendingHistoryItem {
+  bills_utilities: number;
+  education: number;
+  entertainment: number;
+  food_dining: number;
+  groceries: number;
+  health: number;
+  income: number;
+  others: number;
+  savings: number;
+  shopping: number;
+  total_spending: number;
+  transportation: number;
+}
+
+export interface AIPredictSpendingPayload {
+  histori: AIPredictSpendingHistoryItem[];
+}
+
+export const predictSpending = async (
+  payload: AIPredictSpendingPayload
+): Promise<any> => {
+  return fetchFromAI<any>("/predict-spending", payload);
+};
+
 export const getModelInfo = async (): Promise<any> => {
   return fetchFromAI<any>("/model-info", null, "GET");
 };

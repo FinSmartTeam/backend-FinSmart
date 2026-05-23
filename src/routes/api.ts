@@ -32,6 +32,7 @@ router.get("/ai/model-info", aiController.getModelInfo);
 router.post("/ai/finbot-chat", authMiddleware, aiController.askFinBotChat);
 router.post("/ai/behavior", authMiddleware, aiController.getBehavior);
 router.post("/ai/rekomendasi", authMiddleware, aiController.getRekomendasi);
+router.get("/ai/predict-spending", authMiddleware, aiController.predictSpending);
 
 // Dashboard Routes
 router.get("/dashboard/summary", authMiddleware, dashboardController.getSummary);
