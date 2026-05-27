@@ -9,14 +9,22 @@ import { IReqUser } from "../utils/interface";
 const getValidValues = async (req: Request, res: Response) => {
   /*
     #swagger.tags = ['AI Services']
-    #swagger.description = 'Mendapatkan valid values untuk keperluan input'
+    #swagger.description = 'Mendapatkan valid values untuk keperluan input form, termasuk daftar Kategori dari model-info.'
   */
   try {
-    const data = await getClassifyValidValues();
+    const [validValues, modelInfo] = await Promise.all([
+      getClassifyValidValues(),
+      getModelInfoService()
+    ]);
     
+    const combinedData = {
+      ...validValues,
+      Category: modelInfo?.classes || [],
+    };
+
     return res.status(200).json({
-      message: "Berhasil mengambil valid values.",
-      data,
+      message: "Berhasil mengambil valid values dan kategori.",
+      data: combinedData,
     });
   } catch (error: any) {
     console.error("[AI Controller Error]:", error);
