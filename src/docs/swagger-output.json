@@ -322,7 +322,7 @@
         "tags": [
           "Transactions"
         ],
-        "description": "Mengubah transaksi berdasarkan ID.",
+        "description": "Mengubah transaksi berdasarkan ID. Endpoint ini mendukung update parsial (hanya field yang dikirim yang akan diubah).<br><br>**Field yang diizinkan untuk diubah:**<br>- `type` (\"income\" atau \"expense\")<br>- `amount`<br>- `category`<br>- `description`<br>- `merchantName`<br>- `paymentMethod`<br>- `location`<br>- `accountType`<br>- `transactionTypeRaw`<br>- `deviceUsed`<br>- `merchantType`<br>- `loyaltyProgram`<br>- `timeOfDay`<br>- `currency`<br>- `transactionDate`<br><br>**Catatan:**<br>- Field `id`, `userId`, `createdAt`, dan `updatedAt` tidak dapat diubah melalui request ini dan akan diabaikan.",
         "parameters": [
           {
             "name": "id",

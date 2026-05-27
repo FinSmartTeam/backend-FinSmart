@@ -227,7 +227,7 @@ const update = async (req: Request, res: Response) => {
     #swagger.security = [{
       "bearerAuth": []
     }]
-    #swagger.description = 'Mengubah transaksi berdasarkan ID.'
+    #swagger.description = 'Mengubah transaksi berdasarkan ID. Endpoint ini mendukung update parsial (hanya field yang dikirim yang akan diubah).<br><br>**Field yang diizinkan untuk diubah:**<br>- `type` ("income" atau "expense")<br>- `amount`<br>- `category`<br>- `description`<br>- `merchantName`<br>- `paymentMethod`<br>- `location`<br>- `accountType`<br>- `transactionTypeRaw`<br>- `deviceUsed`<br>- `merchantType`<br>- `loyaltyProgram`<br>- `timeOfDay`<br>- `currency`<br>- `transactionDate`<br><br>**Catatan:**<br>- Field `id`, `userId`, `createdAt`, dan `updatedAt` tidak dapat diubah melalui request ini dan akan diabaikan.'
     #swagger.requestBody = {
       required: true,
       content: {
@@ -250,24 +250,69 @@ const update = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Format ID transaksi tidak valid" });
     }
 
-    const body = { ...req.body };
+    const allowedFields = [
+      "type",
+      "amount",
+      "category",
+      "description",
+      "merchantName",
+      "paymentMethod",
+      "location",
+      "accountType",
+      "transactionTypeRaw",
+      "deviceUsed",
+      "merchantType",
+      "loyaltyProgram",
+      "timeOfDay",
+      "currency",
+      "transactionDate",
+    ];
 
-    if (body.userId) {
-      delete body.userId;
+    const updateData: any = {};
+
+    for (const field of allowedFields) {
+      if (req.body[field] !== undefined) {
+        updateData[field] = req.body[field];
+      }
     }
-    
-    body.updatedAt = new Date();
-    
-    if (body.amount !== undefined) {
-      body.amount = String(body.amount);
+
+    if (updateData.type !== undefined && updateData.type !== "income" && updateData.type !== "expense") {
+      return res.status(400).json({ message: "type jika dikirim hanya boleh income atau expense" });
     }
-    if (body.transactionDate !== undefined) {
-      body.transactionDate = new Date(body.transactionDate);
+
+    if (updateData.amount !== undefined) {
+      const amountNum = Number(updateData.amount);
+      if (isNaN(amountNum) || amountNum <= 0) {
+        return res.status(400).json({ message: "amount jika dikirim harus number dan lebih besar dari 0" });
+      }
+      updateData.amount = String(updateData.amount);
     }
+
+    if (updateData.transactionDate !== undefined) {
+      const date = new Date(updateData.transactionDate);
+      if (isNaN(date.getTime())) {
+        return res.status(400).json({ message: "transactionDate jika dikirim harus valid date" });
+      }
+      updateData.transactionDate = date;
+    }
+
+    if (updateData.category !== undefined && typeof updateData.category === "string" && updateData.category.trim() === "") {
+      return res.status(400).json({ message: "category jika dikirim tidak boleh string kosong" });
+    }
+
+    if (updateData.currency === "" || (req.body.hasOwnProperty("currency") && !req.body.currency)) {
+      updateData.currency = "IDR";
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({ message: "Payload tidak valid atau tidak ada data yang diupdate" });
+    }
+
+    updateData.updatedAt = new Date();
 
     const [updatedTransaction] = await db
       .update(transactions)
-      .set(body)
+      .set(updateData)
       .where(and(eq(transactions.id, id as string), eq(transactions.userId, userId as string)))
       .returning();
 
