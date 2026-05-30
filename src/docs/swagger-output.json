@@ -343,9 +343,6 @@
           "401": {
             "description": "Unauthorized"
           },
-          "404": {
-            "description": "Not Found"
-          },
           "500": {
             "description": "Internal Server Error"
           }
@@ -775,7 +772,7 @@
         "tags": [
           "Financial Profile"
         ],
-        "description": "Mendapatkan data profil finansial user. Jika belum ada, otomatis dibuat default.",
+        "description": "Mendapatkan data profil finansial user. Jika belum ada, Profil finansial belum diisi.",
         "responses": {
           "200": {
             "description": "OK"
@@ -801,6 +798,9 @@
         "responses": {
           "200": {
             "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
           },
           "401": {
             "description": "Unauthorized"
