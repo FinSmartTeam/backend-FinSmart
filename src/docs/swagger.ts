@@ -81,7 +81,8 @@ const doc = {
         timeOfDay: "Evening",
         currency: "IDR",
         transactionDate: "2026-05-18T10:00:00.000Z",
-        category: "Boleh dikosongkan (otomatis diisi AI untuk expense)"
+        category: "Opsional. Default: Income/Uncategorized",
+        useAiCategory: false
       },
       UpdateTransactionRequest: {
         amount: 80000,

@@ -195,7 +195,7 @@
         "tags": [
           "Transactions"
         ],
-        "description": "Membuat transaksi baru. Jika type expense, akan menggunakan AI otomatis.",
+        "description": "Membuat transaksi baru. Jika type expense dan useAiCategory true, akan menggunakan AI otomatis.",
         "responses": {
           "201": {
             "description": "Created"
@@ -1485,7 +1485,11 @@
           },
           "category": {
             "type": "string",
-            "example": "Boleh dikosongkan (otomatis diisi AI untuk expense)"
+            "example": "Opsional. Default: Income/Uncategorized"
+          },
+          "useAiCategory": {
+            "type": "boolean",
+            "example": false
           }
         },
         "xml": {

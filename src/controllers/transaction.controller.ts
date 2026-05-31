@@ -21,7 +21,7 @@ const create = async (req: Request, res: Response) => {
     #swagger.security = [{
       "bearerAuth": []
     }]
-    #swagger.description = 'Membuat transaksi baru. Jika type expense, akan menggunakan AI otomatis.'
+    #swagger.description = 'Membuat transaksi baru. Jika type expense dan useAiCategory true, akan menggunakan AI otomatis.'
     #swagger.requestBody = {
       required: true,
       content: {
@@ -53,6 +53,7 @@ const create = async (req: Request, res: Response) => {
       currency,
       transactionDate,
       category,
+      useAiCategory,
     } = req.body;
 
     if (type !== "income" && type !== "expense") {
@@ -75,7 +76,7 @@ const create = async (req: Request, res: Response) => {
     let confidenceScoreVal = null;
     let sourceVal: "manual" | "ai" | "import" = "manual";
 
-    if (type === "expense") {
+    if (useAiCategory === true && type === "expense") {
       const dateParts = getDatePartsForAI(date);
 
       const aiPayload = {
