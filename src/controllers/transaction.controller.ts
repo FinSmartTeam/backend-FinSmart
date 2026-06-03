@@ -21,7 +21,7 @@ const create = async (req: Request, res: Response) => {
     #swagger.security = [{
       "bearerAuth": []
     }]
-    #swagger.description = 'Membuat transaksi baru. Jika type expense, akan menggunakan AI otomatis.'
+    #swagger.description = 'Membuat transaksi baru. Jika type expense dan useAiCategory true, akan menggunakan AI otomatis.'
     #swagger.requestBody = {
       required: true,
       content: {
@@ -53,24 +53,30 @@ const create = async (req: Request, res: Response) => {
       currency,
       transactionDate,
       category,
+      useAiCategory,
     } = req.body;
 
     if (type !== "income" && type !== "expense") {
-      return res.status(400).json({ message: "type wajib income atau expense" });
+      return res
+        .status(400)
+        .json({ message: "type wajib income atau expense" });
     }
 
     if (!amount || amount <= 0) {
-      return res.status(400).json({ message: "amount wajib ada dan lebih besar dari 0" });
+      return res
+        .status(400)
+        .json({ message: "amount wajib ada dan lebih besar dari 0" });
     }
 
     const date = transactionDate ? new Date(transactionDate) : new Date();
 
-    let finalCategory = category || (type === "income" ? "Income" : "Uncategorized");
+    let finalCategory =
+      category || (type === "income" ? "Income" : "Uncategorized");
     let aiCategoryVal = null;
     let confidenceScoreVal = null;
     let sourceVal: "manual" | "ai" | "import" = "manual";
 
-    if (type === "expense") {
+    if (useAiCategory === true && type === "expense") {
       const dateParts = getDatePartsForAI(date);
 
       const aiPayload = {
@@ -88,11 +94,16 @@ const create = async (req: Request, res: Response) => {
         if (aiResult && aiResult.kategori) {
           finalCategory = aiResult.kategori;
           aiCategoryVal = aiResult.kategori;
-          confidenceScoreVal = aiResult.confidence ? String(aiResult.confidence) : null;
+          confidenceScoreVal = aiResult.confidence
+            ? String(aiResult.confidence)
+            : null;
           sourceVal = "ai";
         }
       } catch (aiError) {
-        console.error("AI classification failed, falling back to manual:", aiError);
+        console.error(
+          "AI classification failed, falling back to manual:",
+          aiError,
+        );
       }
     }
 
@@ -127,7 +138,9 @@ const create = async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     console.error(error);
-    return res.status(500).json({ message: error.message || "Internal server error" });
+    return res
+      .status(500)
+      .json({ message: error.message || "Internal server error" });
   }
 };
 
@@ -320,11 +333,15 @@ const findAll = async (req: Request, res: Response) => {
     }
 
     if (startDate) {
-      conditions.push(gte(transactions.transactionDate, new Date(startDate as string)));
+      conditions.push(
+        gte(transactions.transactionDate, new Date(startDate as string)),
+      );
     }
 
     if (endDate) {
-      conditions.push(lte(transactions.transactionDate, new Date(endDate as string)));
+      conditions.push(
+        lte(transactions.transactionDate, new Date(endDate as string)),
+      );
     }
 
     const result = await db
@@ -339,7 +356,9 @@ const findAll = async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     console.error(error);
-    return res.status(500).json({ message: error.message || "Internal server error" });
+    return res
+      .status(500)
+      .json({ message: error.message || "Internal server error" });
   }
 };
 
@@ -359,15 +378,23 @@ const findOne = async (req: Request, res: Response) => {
 
     const { id } = req.params;
 
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     if (!uuidRegex.test(id as string)) {
-      return res.status(400).json({ message: "Format ID transaksi tidak valid" });
+      return res
+        .status(400)
+        .json({ message: "Format ID transaksi tidak valid" });
     }
 
     const [transaction] = await db
       .select()
       .from(transactions)
-      .where(and(eq(transactions.id, id as string), eq(transactions.userId, userId as string)));
+      .where(
+        and(
+          eq(transactions.id, id as string),
+          eq(transactions.userId, userId as string),
+        ),
+      );
 
     if (!transaction) {
       return res.status(404).json({ message: "Transaksi tidak ditemukan" });
@@ -379,7 +406,9 @@ const findOne = async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     console.error(error);
-    return res.status(500).json({ message: error.message || "Internal server error" });
+    return res
+      .status(500)
+      .json({ message: error.message || "Internal server error" });
   }
 };
 
@@ -406,10 +435,13 @@ const update = async (req: Request, res: Response) => {
     }
 
     const { id } = req.params;
-    
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     if (!uuidRegex.test(id.toString())) {
-      return res.status(400).json({ message: "Format ID transaksi tidak valid" });
+      return res
+        .status(400)
+        .json({ message: "Format ID transaksi tidak valid" });
     }
 
     const allowedFields = [
@@ -438,7 +470,11 @@ const update = async (req: Request, res: Response) => {
       }
     }
 
-    if (updateData.type !== undefined && updateData.type !== "income" && updateData.type !== "expense") {
+    if (
+      updateData.type !== undefined &&
+      updateData.type !== "income" &&
+      updateData.type !== "expense"
+    ) {
       return res.status(400).json({ message: "type jika dikirim hanya boleh income atau expense" });
     }
 
@@ -475,12 +511,13 @@ const update = async (req: Request, res: Response) => {
     const [updatedTransaction] = await db
       .update(transactions)
       .set(updateData)
-      .where(and(eq(transactions.id, id as string), eq(transactions.userId, userId as string)))
+      .where(
+        and(
+          eq(transactions.id, id as string),
+          eq(transactions.userId, userId as string),
+        ),
+      )
       .returning();
-
-    if (!updatedTransaction) {
-      return res.status(404).json({ message: "Transaksi tidak ditemukan" });
-    }
 
     return res.status(200).json({
       message: "Berhasil update transaksi",
@@ -488,7 +525,9 @@ const update = async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     console.error(error);
-    return res.status(500).json({ message: error.message || "Internal server error" });
+    return res
+      .status(500)
+      .json({ message: error.message || "Internal server error" });
   }
 };
 
@@ -508,14 +547,22 @@ const remove = async (req: Request, res: Response) => {
 
     const { id } = req.params;
 
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     if (!uuidRegex.test(id.toString())) {
-      return res.status(400).json({ message: "Format ID transaksi tidak valid" });
+      return res
+        .status(400)
+        .json({ message: "Format ID transaksi tidak valid" });
     }
 
     const [deletedTransaction] = await db
       .delete(transactions)
-      .where(and(eq(transactions.id, id as string), eq(transactions.userId, userId as string)))
+      .where(
+        and(
+          eq(transactions.id, id as string),
+          eq(transactions.userId, userId as string),
+        ),
+      )
       .returning();
 
     if (!deletedTransaction) {
@@ -528,7 +575,9 @@ const remove = async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     console.error(error);
-    return res.status(500).json({ message: error.message || "Internal server error" });
+    return res
+      .status(500)
+      .json({ message: error.message || "Internal server error" });
   }
 };
 

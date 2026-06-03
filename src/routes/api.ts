@@ -16,7 +16,12 @@ const router = express.Router();
 router.post("/auth/register", authController.register);
 router.post("/auth/login", authController.login);
 router.get("/auth/me", authMiddleware, authController.me);
-router.put("/auth/profile", authMiddleware, uploadSingle, authController.updateProfile);
+router.put(
+  "/auth/profile",
+  authMiddleware,
+  uploadSingle,
+  authController.updateProfile,
+);
 router.post("/auth/activation", authController.activation);
 
 // Transaction Routes
@@ -25,7 +30,11 @@ router.post("/transactions/bulk", authMiddleware, transactionController.bulkCrea
 router.get("/transactions", authMiddleware, transactionController.findAll);
 router.get("/transactions/:id", authMiddleware, transactionController.findOne);
 router.put("/transactions/:id", authMiddleware, transactionController.update);
-router.delete("/transactions/:id", authMiddleware, transactionController.remove);
+router.delete(
+  "/transactions/:id",
+  authMiddleware,
+  transactionController.remove,
+);
 
 // AI wrapper routes
 router.get("/ai/valid-values", aiController.getValidValues);
@@ -33,24 +42,64 @@ router.get("/ai/model-info", aiController.getModelInfo);
 router.post("/ai/finbot-chat", authMiddleware, aiController.askFinBotChat);
 router.post("/ai/behavior", authMiddleware, aiController.getBehavior);
 router.post("/ai/rekomendasi", authMiddleware, aiController.getRekomendasi);
-router.get("/ai/predict-spending", authMiddleware, aiController.predictSpending);
+router.get(
+  "/ai/predict-spending",
+  authMiddleware,
+  aiController.predictSpending,
+);
 
 // Dashboard Routes
-router.get("/dashboard/summary", authMiddleware, dashboardController.getSummary);
-router.get("/dashboard/category-breakdown", authMiddleware, dashboardController.getCategoryBreakdown);
-router.get("/dashboard/monthly", authMiddleware, dashboardController.getMonthlyData);
-router.get("/dashboard/recent-transactions", authMiddleware, dashboardController.getRecentTransactions);
+router.get(
+  "/dashboard/summary",
+  authMiddleware,
+  dashboardController.getSummary,
+);
+router.get(
+  "/dashboard/category-breakdown",
+  authMiddleware,
+  dashboardController.getCategoryBreakdown,
+);
+router.get(
+  "/dashboard/monthly",
+  authMiddleware,
+  dashboardController.getMonthlyData,
+);
+router.get(
+  "/dashboard/recent-transactions",
+  authMiddleware,
+  dashboardController.getRecentTransactions,
+);
 
 // Financial Profile Routes
-router.get("/financial-profile", authMiddleware, financialProfileController.getProfile);
-router.put("/financial-profile", authMiddleware, financialProfileController.updateProfile);
+router.get(
+  "/financial-profile",
+  authMiddleware,
+  financialProfileController.getProfile,
+);
+router.put(
+  "/financial-profile",
+  authMiddleware,
+  financialProfileController.updateProfile,
+);
 
 // Insight Routes
-router.get("/insights/behavior", authMiddleware, insightController.getBehaviorInsight);
-router.get("/insights/rekomendasi", authMiddleware, insightController.getInvestmentInsight);
+router.get(
+  "/insights/behavior",
+  authMiddleware,
+  insightController.getBehaviorInsight,
+);
+router.get(
+  "/insights/rekomendasi",
+  authMiddleware,
+  insightController.getInvestmentInsight,
+);
 
 // Report Routes
-router.get("/reports/monthly", authMiddleware, reportController.getMonthlyReport);
+router.get(
+  "/reports/monthly",
+  authMiddleware,
+  reportController.getMonthlyReport,
+);
 
 // Budget Routes
 router.post("/budgets", authMiddleware, budgetController.create);
