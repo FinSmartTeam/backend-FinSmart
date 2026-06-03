@@ -21,6 +21,7 @@ router.post("/auth/activation", authController.activation);
 
 // Transaction Routes
 router.post("/transactions", authMiddleware, transactionController.create);
+router.post("/transactions/bulk", authMiddleware, transactionController.bulkCreate);
 router.get("/transactions", authMiddleware, transactionController.findAll);
 router.get("/transactions/:id", authMiddleware, transactionController.findOne);
 router.put("/transactions/:id", authMiddleware, transactionController.update);

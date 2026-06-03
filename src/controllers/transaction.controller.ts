@@ -131,6 +131,168 @@ const create = async (req: Request, res: Response) => {
   }
 };
 
+const bulkCreate = async (req: Request, res: Response) => {
+  /*
+    #swagger.tags = ['Transactions']
+    #swagger.security = [{
+      "bearerAuth": []
+    }]
+    #swagger.description = 'Membuat banyak transaksi baru secara massal (bulk). Jika type expense dan useAiCategory=true, akan menggunakan AI otomatis.'
+    #swagger.requestBody = {
+      required: true,
+      content: {
+        "application/json": {
+          schema: {
+            type: 'array',
+            items: { $ref: "#/components/schemas/CreateTransactionRequest" }
+          }
+        }
+      }
+    }
+  */
+  try {
+    const userId = (req as IReqUser).user?.id;
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    if (!Array.isArray(req.body)) {
+      return res.status(400).json({ message: "Body request harus berupa array transaksi" });
+    }
+
+    const items = req.body;
+    if (items.length === 0) {
+      return res.status(400).json({ message: "Array transaksi tidak boleh kosong" });
+    }
+
+    const errors: { index: number; field: string; message: string }[] = [];
+    const validItems: any[] = [];
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      let hasError = false;
+
+      if (!item.type) {
+        errors.push({ index: i, field: "type", message: "Type wajib diisi" });
+        hasError = true;
+      } else if (item.type !== "income" && item.type !== "expense") {
+        errors.push({ index: i, field: "type", message: "Type hanya boleh income atau expense" });
+        hasError = true;
+      }
+
+      if (item.amount === undefined || item.amount === null) {
+        errors.push({ index: i, field: "amount", message: "Amount wajib diisi" });
+        hasError = true;
+      } else if (typeof item.amount !== "number" || item.amount <= 0) {
+        errors.push({ index: i, field: "amount", message: "Amount harus lebih dari 0" });
+        hasError = true;
+      }
+
+      if (!item.description || typeof item.description !== "string" || item.description.trim() === "") {
+        errors.push({ index: i, field: "description", message: "Description wajib diisi dengan string" });
+        hasError = true;
+      }
+
+      if (!item.transactionDate) {
+        errors.push({ index: i, field: "transactionDate", message: "TransactionDate wajib diisi" });
+        hasError = true;
+      } else {
+        const date = new Date(item.transactionDate);
+        if (isNaN(date.getTime())) {
+          errors.push({ index: i, field: "transactionDate", message: "Format transactionDate tidak valid" });
+          hasError = true;
+        }
+      }
+
+      if (!hasError) {
+        validItems.push({ originalIndex: i, data: item });
+      }
+    }
+
+    if (errors.length > 0) {
+      return res.status(400).json({
+        message: "Validasi bulk transaksi gagal",
+        errors,
+      });
+    }
+
+    // Process valid items
+    const insertData = await Promise.all(
+      validItems.map(async (itemObj) => {
+        const { data } = itemObj;
+        const date = new Date(data.transactionDate);
+
+        let finalCategory = data.category || (data.type === "income" ? "Income" : "Uncategorized");
+        let aiCategoryVal = null;
+        let confidenceScoreVal = null;
+        let sourceVal: "manual" | "ai" | "import" = "manual";
+        
+        // AI handling
+        if (data.type === "expense" && data.useAiCategory === true) {
+          const dateParts = getDatePartsForAI(date);
+
+          const aiPayload = {
+            Amount: Number(data.amount),
+            Payment_Method: data.paymentMethod || "Debit Card",
+            MerchantName: data.merchantName || "Amazon",
+            Time_Of_Day: data.timeOfDay || "Evening",
+            Week_Day: dateParts.Week_Day,
+            Month: dateParts.Month,
+            Day: dateParts.Day,
+          };
+
+          try {
+            const aiResult = await classifyTransaction(aiPayload);
+            if (aiResult && aiResult.kategori) {
+              finalCategory = aiResult.kategori;
+              aiCategoryVal = aiResult.kategori;
+              confidenceScoreVal = aiResult.confidence ? String(aiResult.confidence) : null;
+              sourceVal = "ai";
+            }
+          } catch (aiError) {
+            console.error(`AI classification failed for index ${itemObj.originalIndex}, falling back to manual:`, aiError);
+          }
+        }
+
+        return {
+          userId,
+          type: data.type,
+          amount: String(data.amount),
+          category: finalCategory,
+          description: data.description,
+          merchantName: data.merchantName,
+          paymentMethod: data.paymentMethod,
+          location: data.location,
+          accountType: data.accountType,
+          transactionTypeRaw: data.transactionTypeRaw,
+          deviceUsed: data.deviceUsed,
+          merchantType: data.merchantType,
+          loyaltyProgram: !!data.loyaltyProgram,
+          timeOfDay: data.timeOfDay,
+          currency: data.currency || "IDR",
+          transactionDate: date,
+          source: sourceVal,
+          aiCategory: aiCategoryVal,
+          confidenceScore: confidenceScoreVal,
+        };
+      })
+    );
+
+    const insertedTransactions = await db.transaction(async (tx) => {
+      return await tx.insert(transactions).values(insertData).returning();
+    });
+
+    return res.status(201).json({
+      message: "Berhasil membuat transaksi secara massal",
+      count: insertedTransactions.length,
+      data: insertedTransactions,
+    });
+  } catch (error: any) {
+    console.error(error);
+    return res.status(500).json({ message: error.message || "Internal server error" });
+  }
+};
+
 const findAll = async (req: Request, res: Response) => {
   /*
     #swagger.tags = ['Transactions']
@@ -372,6 +534,7 @@ const remove = async (req: Request, res: Response) => {
 
 export default {
   create,
+  bulkCreate,
   findAll,
   findOne,
   update,
