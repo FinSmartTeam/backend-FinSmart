@@ -15,6 +15,7 @@ const router = express.Router();
 // Auth Routes
 router.post("/auth/register", authController.register);
 router.post("/auth/login", authController.login);
+router.post("/auth/google", authController.googleLogin);
 router.get("/auth/me", authMiddleware, authController.me);
 router.put(
   "/auth/profile",

@@ -10,7 +10,8 @@ import response from "../utils/response";
 import { IReqUser } from "../utils/interface";
 import uploader from "../utils/uploader";
 import { v2 as cloudinary } from "cloudinary";
-
+import { OAuth2Client } from "google-auth-library";
+import { GOOGLE_CLIENT_ID } from "../utils/env";
 type TRegister = {
   fullName: string;
   email: string;
@@ -283,6 +284,98 @@ export default {
       );
     } catch (error) {
       response.error(res, error, "Failed to activate user");
+    }
+  },
+
+  async googleLogin(req: Request, res: Response) {
+    /**
+      #swagger.tags = ["Auth"]
+      #swagger.summary = "Login or Register using Google SSO"
+      #swagger.description = "Login or automatically register the user using Google ID Token."
+      #swagger.requestBody = {
+        required: true,
+        schema: {
+          type: "object",
+          properties: {
+            idToken: { type: "string" }
+          }
+        }
+      }
+     */
+    try {
+      const { idToken } = req.body as { idToken: string };
+      if (!idToken) {
+        return response.unauthorized(res, "ID Token is required");
+      }
+
+      const client = new OAuth2Client(GOOGLE_CLIENT_ID);
+      const ticket = await client.verifyIdToken({
+        idToken,
+        audience: GOOGLE_CLIENT_ID,
+      });
+      const payload = ticket.getPayload();
+      
+      if (!payload || !payload.email) {
+        return response.unauthorized(res, "Invalid Google ID Token");
+      }
+
+      const { email, name, picture } = payload;
+
+      let [user] = await db.select().from(users).where(eq(users.email, email));
+
+      if (!user) {
+        // Register new user
+        const randomPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8) + "A1!";
+        const hashedPassword = await bcrypt.hash(randomPassword, 10);
+        
+        const [newUser] = await db
+          .insert(users)
+          .values({
+            fullName: name || "Google User",
+            email,
+            password: hashedPassword,
+            profilePicture: picture || 'profile.png',
+            isActive: true, // Google emails are already verified
+          })
+          .returning();
+          
+        user = newUser;
+      }
+
+      if (!user.isActive) {
+        await db.update(users).set({ isActive: true }).where(eq(users.id, user.id));
+        user.isActive = true;
+      }
+
+      if (!process.env.JWT_SECRET) {
+        throw new Error("JWT_SECRET is not defined");
+      }
+
+      const token = jwt.sign(
+        {
+          id: user.id,
+          email: user.email,
+          role: user.role,
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: "1d" },
+      );
+
+      const respPayload = {
+        token,
+        user: {
+          id: user.id,
+          fullName: user.fullName,
+          email: user.email,
+          role: user.role,
+          profilePicture: user.profilePicture,
+        },
+      };
+
+      response.success(res, respPayload, "Google Login successful");
+    } catch (error) {
+      console.error("[Google Login Error]:", error);
+      response.error(res, error, "Failed to login with Google");
     }
   },
 
